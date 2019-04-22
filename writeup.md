@@ -17,12 +17,12 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./output_images/undistort_calibration1.jpg "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
-[video1]: ./project_video.mp4 "Video"
+[image2]: ./output_images/undistort_test1.jpg "Road Transformed"
+[image3]: ./output_images/binary_combo_example.jpg "Binary Example"
+[image4]: ./output_images/warped_straight_lines.jpg "Warp Example"
+[image5]: ./output_images/color_fit_lines.jpg "Fit Visual"
+[image6]: ./output_images/example_output.jpg "Output"
+[video1]: ./output_images/project_video.mp4 "Video"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -49,7 +49,7 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in "./P2.ipynb").  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
 
 ![alt text][image3]
 
