@@ -1,19 +1,7 @@
 ## Advanced Lane Finding
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-![Lanes Image](./examples/example_output.jpg)
-
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
 ---
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
 
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
-
-The Project
----
+**Advanced Lane Finding Project**
 
 The goals / steps of this project are the following:
 
@@ -26,14 +14,93 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
+[//]: # (Image References)
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `output_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+[image1]: ./output_images/undistort_calibration1.jpg "Undistorted"
+[image2]: ./output_images/undistort_test1.jpg "Road Transformed"
+[image3]: ./output_images/threshold_test1.jpg "Binary Example"
+[image4]: ./output_images/top_down_test1.jpg "Warp Example"
+[image5]: ./output_images/sliding_windows_test1.jpg "Fit Visual"
+[image7]: ./output_images/search_from_prior_test1.jpg "Fit line"
+[image6]: ./output_images/test1.jpg "Output"
+[video1]: ./output_images/project_video.mp4 "Video"
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
+## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
+### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+---
 
+### Camera Calibration
+
+The code for this step is contained in the second and third code cell of the IPython notebook located in `./P2.ipynb` 
+
+I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+
+I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  The `objpoints` and `imgpoints` are saved in a picke file for later use. I applied this distortion correction to the chessboard image using the `cv2.undistort()` function and obtained this result: 
+
+![alt text][image1]
+
+### Pipeline (single images)
+
+#### 1. Provide an example of a distortion-corrected image.
+
+Using the same method above applied to the chessboard, a test image is unditorted:
+![alt text][image2]
+
+
+#### 2. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
+
+The code for my perspective transform can be found in `./P2.ipynb`. The source (`src`) and destination (`dst`) points are hardcoded and they are listed below:
+
+This resulted in the following source and destination points:
+
+| Source        | Destination   | 
+|:-------------:|:-------------:| 
+| 581, 477      | 384, 0        | 
+| 699, 477      | 896, 0        |
+| 896, 675      | 896, 720      |
+| 384, 675      | 384, 720      |
+
+The two functions are used in the process of perspective transoform: `cv2.getPerspectiveTransform` and `cv2.warpPerspective` I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+
+![alt text][image4]
+
+#### 3. Thresholding
+
+I used a combination of color and gradient thresholds to generate a binary image (thresholding steps in section 4 of "./P2.ipynb").  `cv2.sobel` was used to threshold the image. The thresholding is a combination of sobel in x direction, y direction, the direction, and also the magnitude. After using `cv2.sobel`, the thresholding of s channel in the hls color is combined. Here's an example of my output for this step.
+
+![alt text][image3]
+
+#### 4. Fitting lane lines
+
+Then I used the method of sliding windows to find pixels that can be used to fit lane lines. The code can be found in section 6.
+I also used the method of search from prior to find pixels in later frames. 
+
+![alt text][image5]
+
+#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+
+I did this "./P2.ipynb" with the function `np.polifit`. The code can be found in section 7.
+
+#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
+
+I implemented this step in section 8 in my code in the function `display()` and `label()`.  Here is an example of my result on a test image:
+
+![alt text][image6]
+
+---
+
+### Pipeline (video)
+
+#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
+
+Here's a [link to my video result](./project_video.mp4)
+
+---
+
+### Discussion
+
+#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+
+The pipeline is working properly for the test images and the project video. However it fails on the challenge video; the reason is that it cannot filter out the irregular edges on the road. The pipeline tends to take those edges as lane lines. The way to improve the pipeline should be adding a method to compare newly-detected curvature to the previous values and elimitate drastic changes while keeping reasonable values.  
